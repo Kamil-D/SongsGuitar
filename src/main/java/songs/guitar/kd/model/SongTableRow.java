@@ -15,6 +15,15 @@ public class SongTableRow {
     SimpleStringProperty note;
 
 
+    public SongTableRow(String songTitleName, String artistName, String difficultyLevel,
+                        String learnedLevel, String note) {
+        this.songTitleName = new SimpleStringProperty(songTitleName);
+        this.artistName = new SimpleStringProperty(artistName);
+        this.difficultyLevel = new SimpleStringProperty(difficultyLevel);
+        this.learnedLevel = new SimpleStringProperty(learnedLevel);
+        this.note = new SimpleStringProperty(note);
+    }
+
     public SimpleStringProperty songTitleNameProperty() {
         return songTitleName;
     }

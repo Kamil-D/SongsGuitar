@@ -13,13 +13,13 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="songs.guitar.kd.Controller">
     <center>
-        <TableView fx:id="tableMain" prefHeight="581.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+        <TableView fx:id="tableSongs" prefHeight="581.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
             <columns>
                 <TableColumn fx:id="artistColumn" prefWidth="187.00001525878906" text="Wykonawca" />
                 <TableColumn fx:id="songColumn" minWidth="0.0" prefWidth="240.0" text="Utwór" />
-                <TableColumn fx:id="difficultyCompetitionsColumn" prefWidth="194.0" text="Poziom trudności" />
+                <TableColumn fx:id="difficultyLevelColumn" prefWidth="194.0" text="Poziom trudności" />
                 <TableColumn fx:id="learnedLevelColumn" prefWidth="177.0" text="Stopień nauki" />
-                <TableColumn fx:id="notesColumn" prefWidth="201.0" text="Notatki" />
+                <TableColumn fx:id="notesColumn" prefWidth="200.0" text="Notatki" />
             </columns>
         </TableView>
     </center>
@@ -45,7 +45,7 @@
                     <Label text="Wykonawca:" />
                     <TextField fx:id="artistNameField" />
                     <Label prefHeight="21.0" prefWidth="48.0" text="Utwór:" />
-                    <TextField fx:id="songField" prefHeight="31.0" prefWidth="181.0" />
+                    <TextField fx:id="songTitleField" prefHeight="31.0" prefWidth="181.0" />
                     <Label layoutX="310.0" layoutY="25.0" prefHeight="21.0" prefWidth="129.0" text="Poziom trudności:" />
                     <TextField fx:id="difficultyLevelField" layoutX="368.0" layoutY="20.0" prefHeight="31.0" prefWidth="181.0" />
                     <padding>

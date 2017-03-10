@@ -9,10 +9,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import songs.guitar.kd.model.Competition;
-import songs.guitar.kd.model.CompetitionTableRow;
-import songs.guitar.kd.model.Competitor;
-import songs.guitar.kd.model.CompetitorTableRow;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import songs.guitar.kd.dao.impl.ArtistDaoImpl;
+import songs.guitar.kd.dao.impl.NoteDaoImpl;
+import songs.guitar.kd.dao.impl.SongDaoImpl;
+import songs.guitar.kd.model.*;
+import songs.guitar.kd.model.db.Artist;
+import songs.guitar.kd.model.db.Song;
+import songs.guitar.kd.util.HibernateUtil;
 
 
 import java.net.URL;
@@ -30,41 +35,38 @@ https://examples.javacodegeeks.com/desktop-java/javafx/tableview/javafx-tablevie
 
 public class Controller implements Initializable {
 
-    private List<Competitor> competitorsList = new ArrayList<>();
+    private List<Competitor> songsList = new ArrayList<>();
+
+    private SongDaoImpl songDao;
+    private ArtistDaoImpl artistDao;
+    private NoteDaoImpl noteDao;
 
     // ObservableList powoduje, że tabela automatycznie reaguje na zawartości listy tego typu
-    private ObservableList<CompetitorTableRow> competitorsTableObservableList = FXCollections.observableArrayList();
-    private ObservableList<CompetitionTableRow> competitionsTableObservableList = FXCollections.observableArrayList();
+    private ObservableList<SongTableRow> songsTableObservableList = FXCollections.observableArrayList();
 
     @FXML
-    TableView<CompetitorTableRow> tableCompetitors;
+    TableView<SongTableRow> tableSongs;
 
     @FXML
-    TableView<CompetitionTableRow> tableCompetitions;
+    TableColumn<SongTableRow, String> artistColumn;
 
     @FXML
-    TableColumn<CompetitorTableRow, Integer> rankedColumn;
+    TableColumn<SongTableRow, String> songColumn;
 
     @FXML
-    TableColumn<CompetitorTableRow, String> competitorColumn;
+    TableColumn<SongTableRow, String> difficultyLevelColumn;
 
     @FXML
-    TableColumn<CompetitorTableRow, Integer> amountCompetitionsColumn;
+    TableColumn<SongTableRow, String> learnedLevelColumn;
 
     @FXML
-    TableColumn<CompetitorTableRow, Integer> scoreColumn;
+    TableColumn<SongTableRow, String> notesColumn;
 
     @FXML
-    TableColumn<CompetitionTableRow, String> competitionNameColumn;
+    TextField artistNameField, songTitleField, difficultyLevelField;
 
     @FXML
-    TableColumn<CompetitionTableRow, Integer> scoreInCompetition;
-
-    @FXML
-    TextField competitorNameField, competitionNameField, scoreInCompetitionField;
-
-    @FXML
-    Button addCompetitorButton, addCompetitionButton;
+    Button addSongButton, showLearnedButton, showNotLearnedButton, showAllButton;
 
     /*
         The initialize() method is automatically called after the fxml file has been loaded.
@@ -73,109 +75,155 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        createData();
+        initializeObjects();
+
         setTables();
-    }
-
-    private void createData() {
-        Competitor competitor1 = new Competitor("Geralt z Rivii");
-        Competitor competitor2 = new Competitor("Kamil Działek");
-        Competitor competitor3 = new Competitor("Adolf Hitler");
-
-        competitor1.addCompetition(new Competition("Konkurs 1", 66));
-        competitor1.addCompetition(new Competition("Konkurs 2", 40));
-        competitor1.addCompetition(new Competition("Konkurs 3", 30));
-
-        competitor2.addCompetition(new Competition("Konkurs 1", 20));
-        competitor2.addCompetition(new Competition("Konkurs 2", 15));
-        competitor2.addCompetition(new Competition("Konkurs 3", 10));
-        competitor2.addCompetition(new Competition("Konkurs 4", 27));
-
-        competitor3.addCompetition(new Competition("Konkurs 1", 30));
-        competitor3.addCompetition(new Competition("Konkurs 2", 8));
-
-        competitorsList.add(competitor1);
-        competitorsList.add(competitor2);
-        competitorsList.add(competitor3);
-    }
-
-    private void setTables() {
-        tableCompetitors.setItems(competitorsTableObservableList);
-        tableCompetitions.setItems(competitionsTableObservableList);
 
         createListeners();
 
         setCellFactoryForEachColumn();
+    }
 
-        for (Competitor competitor : competitorsList) {
-            competitorsTableObservableList.add(new CompetitorTableRow(competitor));
-        }
+    private void initializeObjects() {
+
+        songDao = new SongDaoImpl();
+        artistDao = new ArtistDaoImpl();
+        noteDao = new NoteDaoImpl();
+    }
+
+
+    private void setTables() {
+        tableSongs.setItems(songsTableObservableList);
+
+
+
+        songsTableObservableList.add(new SongTableRow("Fade to Black", "Metallica", "6/10", "9/10", "Ostatnie solo do szlifowania"));
+
+        //testAddSong();
+
+//        for (Competitor competitor : songsList) {
+//            songsTableObservableList.add(new SongTableRow(competitor));
+//        }
 
     }
 
+
     private void createListeners() {
 
-        addCompetitorButton.setOnAction((ActionEvent e) -> {
-            addCompetitor();
+        addSongButton.setOnAction((ActionEvent e) -> {
+            addSong();
+        });
+        showLearnedButton.setOnAction((ActionEvent e) -> {
+            listLearnedSongs();
+        });
+        showNotLearnedButton.setOnAction((ActionEvent e) -> {
+            listNotLearnedSongs();
+        });
+        showAllButton.setOnAction((ActionEvent e) -> {
+            listAllSongs();
         });
 
-        addCompetitionButton.setOnAction((ActionEvent e) -> {
-            addCompetition();
-        });
-
-        tableCompetitors.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> {
-
-                    refreshCompetitionsTable();
-
-                });
+//        tableCompetitors.getSelectionModel().selectedItemProperty().addListener(
+//                (observable, oldValue, newValue) -> {
+//
+//                    refreshCompetitionsTable();
+//
+//                });
     }
 
     private void refreshCompetitionsTable() {
 
-        competitionsTableObservableList.clear();
-
-        for(Competition competition : tableCompetitors.getSelectionModel()
-                .getSelectedItem().getCompetitorObject().getCompetitions()){
-
-            competitionsTableObservableList.add(new CompetitionTableRow(competition));
-        }
+//        competitionsTableObservableList.clear();
+//
+//        for(Competition competition : tableCompetitors.getSelectionModel()
+//                .getSelectedItem().getCompetitorObject().getCompetitions()){
+//
+//            competitionsTableObservableList.add(new CompetitionTableRow(competition));
+//        }
     }
 
     private void setCellFactoryForEachColumn() {
+        artistColumn.setCellValueFactory(cellData -> cellData.getValue().artistNameProperty());
+        songColumn.setCellValueFactory(cellData -> cellData.getValue().songTitleNameProperty());
+        difficultyLevelColumn.setCellValueFactory(cellData -> cellData.getValue().difficultyLevelProperty());
+        learnedLevelColumn.setCellValueFactory(cellData -> cellData.getValue().learnedLevelProperty());
+        notesColumn.setCellValueFactory(cellData -> cellData.getValue().noteProperty());
 
-        rankedColumn.setCellValueFactory(cellData -> cellData.getValue().rankProperty().asObject());
-        competitorColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-        amountCompetitionsColumn.setCellValueFactory(cellData -> cellData.getValue().amountCompetitionsProperty().asObject());
-        scoreColumn.setCellValueFactory(cellData -> cellData.getValue().scoreProperty().asObject());
-
-        competitionNameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-        scoreInCompetition.setCellValueFactory(cellData -> cellData.getValue().pointsProperty().asObject());
     }
 
-    private void addCompetitor() {
-        Competitor competitor = new Competitor(competitorNameField.getText());
+    private void testAddSong(){
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
 
-        competitorsList.add(competitor);
+        session.beginTransaction();
 
-        competitorsTableObservableList.add(new CompetitorTableRow(competitor));
+
+        Artist artist = new Artist();
+        artist.setArtistName("Metallica");
+
+        Song song = new Song();
+        song.setDifficultyLevel("6/10");
+        song.setLearnedLevel("9/10");
+        song.setTitle("Fade To Black");
+
+        song.setArtist(artist);
+
+        //session.persist(artist);
+        session.persist(song);
+
+        session.getTransaction().commit();
+
+
+        session.close();
+    }
+
+    private void addSong() {
+
+        Artist artist = new Artist();
+        Song song = new Song();
+
+        artist.setArtistName(artistNameField.getText());
+
+        song.setArtist(artist);
+        song.setTitle(songTitleField.getText());
+        song.setDifficultyLevel(difficultyLevelField.getText());
+        song.setLearnedLevel("0/0");
+
+        songDao.saveSong(song);
+
+//        Competitor competitor = new Competitor(competitorNameField.getText());
+//
+//        songsList.add(competitor);
+//
+//        songsTableObservableList.add(new CompetitorTableRow(competitor));
 
     }
 
     private void addCompetition() {
 
-        if (competitionNameField.getText().matches("") ||  scoreInCompetitionField.getText().matches(""))
-            return;
-
-        Competition competition =
-                new Competition(competitionNameField.getText(), Integer.valueOf(scoreInCompetitionField.getText()));
-
-        tableCompetitors.getSelectionModel()
-                .getSelectedItem().getCompetitorObject().addCompetition(competition);
-
-        refreshCompetitionsTable();
+//        if (competitionNameField.getText().matches("") ||  scoreInCompetitionField.getText().matches(""))
+//            return;
+//
+//        Competition competition =
+//                new Competition(competitionNameField.getText(), Integer.valueOf(scoreInCompetitionField.getText()));
+//
+//        tableCompetitors.getSelectionModel()
+//                .getSelectedItem().getCompetitorObject().addCompetition(competition);
+//
+//        refreshCompetitionsTable();
 
     }
 
+    private void listAllSongs() {
+
+    }
+
+    private void listLearnedSongs() {
+
+    }
+
+    private void listNotLearnedSongs() {
+
+    }
 
 }

@@ -1,0 +1,23 @@
+package songs.guitar.kd.dao;
+
+import songs.guitar.kd.model.db.Artist;
+import songs.guitar.kd.model.db.Song;
+
+import java.util.List;
+
+/**
+ * Created by Kamil on 2017-03-10.
+ */
+public interface SongDao {
+
+    void saveSong(Song song);
+
+    void deleteSong(Song song);
+
+    void updateSong(Song song);
+
+    List<Song> getAllSongs();
+
+    List<Song> getSongByArtist(Artist artist);
+
+}

@@ -22,8 +22,20 @@ public class Note {
     private String noteText;
 
 
+
+
     @OneToOne(targetEntity = Song.class, mappedBy = "note")
     private Song song;
+
+    public Song getSong() {
+        return song;
+    }
+
+    public void setSong(Song song) {
+        this.song = song;
+    }
+
+
 
 
     public int getId() {

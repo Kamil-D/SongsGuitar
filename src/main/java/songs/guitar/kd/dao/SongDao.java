@@ -18,6 +18,6 @@ public interface SongDao {
 
     List<Song> getAllSongs();
 
-    List<Song> getSongByArtist(Artist artist);
+    List<Song> getAllArtistSongs(int artistId);
 
 }

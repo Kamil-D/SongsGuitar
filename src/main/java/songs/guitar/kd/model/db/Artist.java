@@ -27,6 +27,7 @@ public class Artist {
 
 
     @OneToMany(targetEntity = Song.class, mappedBy = "artist")
+//    @JoinColumn(name="songReference", referencedColumnName="id")
     private Set<Song> songHashSet = new HashSet<Song>(0);
 
     public Set<Song> getSongHashSet() {

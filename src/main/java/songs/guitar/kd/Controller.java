@@ -5,19 +5,19 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import javafx.scene.control.*;
+import songs.guitar.kd.dao.ArtistDao;
+import songs.guitar.kd.dao.NoteDao;
+import songs.guitar.kd.dao.SongDao;
 import songs.guitar.kd.dao.impl.ArtistDaoImpl;
 import songs.guitar.kd.dao.impl.NoteDaoImpl;
 import songs.guitar.kd.dao.impl.SongDaoImpl;
 import songs.guitar.kd.model.*;
 import songs.guitar.kd.model.db.Artist;
+import songs.guitar.kd.model.db.Note;
 import songs.guitar.kd.model.db.Song;
 import songs.guitar.kd.util.HibernateUtil;
+import songs.guitar.kd.util.Util;
 
 
 import java.net.URL;
@@ -35,11 +35,13 @@ https://examples.javacodegeeks.com/desktop-java/javafx/tableview/javafx-tablevie
 
 public class Controller implements Initializable {
 
-    private List<Competitor> songsList = new ArrayList<>();
+    private List<Song> songsList;
+    private List<Artist> artistList;
+    private List<Note> noteList;
 
-    private SongDaoImpl songDao;
-    private ArtistDaoImpl artistDao;
-    private NoteDaoImpl noteDao;
+    private SongDao songDao;
+    private ArtistDao artistDao;
+    private NoteDao noteDao;
 
     // ObservableList powoduje, że tabela automatycznie reaguje na zawartości listy tego typu
     private ObservableList<SongTableRow> songsTableObservableList = FXCollections.observableArrayList();
@@ -63,10 +65,13 @@ public class Controller implements Initializable {
     TableColumn<SongTableRow, String> notesColumn;
 
     @FXML
-    TextField artistNameField, songTitleField, difficultyLevelField;
+    TextField artistNameField, songTitleField;
 
     @FXML
     Button addSongButton, showLearnedButton, showNotLearnedButton, showAllButton;
+
+    @FXML
+    ComboBox difficultyLevelComboBox;
 
     /*
         The initialize() method is automatically called after the fxml file has been loaded.
@@ -74,6 +79,13 @@ public class Controller implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        /*
+         * Tymczasowe i częściowe naprawienie błędu NullPointerException przy starcie aplikacji
+         * Uwaga - nadal wyrzuca przy configuration.buildSessionFactory(serviceRegistry) w klasie HibernateUtil
+         * Pomimo tego aplikacja uruchamia się bez większych problemów i prawidłowo pobrane zostają dane z BD
+         */
+        HibernateUtil.getSessionFactory();
 
         initializeObjects();
 
@@ -89,17 +101,38 @@ public class Controller implements Initializable {
         songDao = new SongDaoImpl();
         artistDao = new ArtistDaoImpl();
         noteDao = new NoteDaoImpl();
+
+        songsList = new ArrayList<>();
+        artistList = new ArrayList<>();
+        noteList = new ArrayList<>();
+
+        initializeComboBox();
+
+    }
+
+    private void initializeComboBox() {
+        difficultyLevelComboBox.getItems().addAll(Util.difficultyLevelStrings);
+        difficultyLevelComboBox.setValue(Util.difficultyLevelStrings[0]);
     }
 
 
     private void setTables() {
+
         tableSongs.setItems(songsTableObservableList);
 
+        downloadDataFromDBAndRefreshSongTable();
 
+//        Song song = new Song();
+//        Artist artist = new Artist();
+//        Note note = new Note();
 
-        songsTableObservableList.add(new SongTableRow("Fade to Black", "Metallica", "6/10", "9/10", "Ostatnie solo do szlifowania"));
-
-        //testAddSong();
+//        artist.setArtistName("Metallica");
+//        song.setTitle("Fade To Black");
+//        song.setDifficultyLevel("6/10");
+//        song.setLearnedLevel("9/10");
+//        note.setNoteText("Ostatnie solo do szlifowania");
+//
+//        songsTableObservableList.add(new SongTableRow(song, artist, note));
 
 //        for (Competitor competitor : songsList) {
 //            songsTableObservableList.add(new SongTableRow(competitor));
@@ -120,26 +153,15 @@ public class Controller implements Initializable {
             listNotLearnedSongs();
         });
         showAllButton.setOnAction((ActionEvent e) -> {
-            listAllSongs();
+            downloadDataFromDBAndRefreshSongTable();
         });
 
 //        tableCompetitors.getSelectionModel().selectedItemProperty().addListener(
 //                (observable, oldValue, newValue) -> {
 //
-//                    refreshCompetitionsTable();
+//                    refreshTable();
 //
 //                });
-    }
-
-    private void refreshCompetitionsTable() {
-
-//        competitionsTableObservableList.clear();
-//
-//        for(Competition competition : tableCompetitors.getSelectionModel()
-//                .getSelectedItem().getCompetitorObject().getCompetitions()){
-//
-//            competitionsTableObservableList.add(new CompetitionTableRow(competition));
-//        }
     }
 
     private void setCellFactoryForEachColumn() {
@@ -151,52 +173,31 @@ public class Controller implements Initializable {
 
     }
 
-    private void testAddSong(){
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-        Session session = sessionFactory.openSession();
-
-        session.beginTransaction();
-
-
-        Artist artist = new Artist();
-        artist.setArtistName("Metallica");
-
-        Song song = new Song();
-        song.setDifficultyLevel("6/10");
-        song.setLearnedLevel("9/10");
-        song.setTitle("Fade To Black");
-
-        song.setArtist(artist);
-
-        //session.persist(artist);
-        session.persist(song);
-
-        session.getTransaction().commit();
-
-
-        session.close();
-    }
-
     private void addSong() {
 
-        Artist artist = new Artist();
         Song song = new Song();
+        Artist artist = new Artist();
+        Note note = new Note();
 
         artist.setArtistName(artistNameField.getText());
 
-        song.setArtist(artist);
+        note.setNoteText("PUSTA NOTATKA");
+
         song.setTitle(songTitleField.getText());
-        song.setDifficultyLevel(difficultyLevelField.getText());
+        song.setDifficultyLevel(difficultyLevelComboBox.getSelectionModel().getSelectedItem().toString());
         song.setLearnedLevel("0/0");
+
+        song.setArtist(artist);
+        song.setNote(note);
 
         songDao.saveSong(song);
 
+        downloadDataFromDBAndRefreshSongTable();
 //        Competitor competitor = new Competitor(competitorNameField.getText());
 //
 //        songsList.add(competitor);
 //
 //        songsTableObservableList.add(new CompetitorTableRow(competitor));
-
     }
 
     private void addCompetition() {
@@ -210,12 +211,30 @@ public class Controller implements Initializable {
 //        tableCompetitors.getSelectionModel()
 //                .getSelectedItem().getCompetitorObject().addCompetition(competition);
 //
-//        refreshCompetitionsTable();
+//        refreshTable();
 
     }
 
-    private void listAllSongs() {
+    private void downloadDataFromDBAndRefreshSongTable() {
 
+        clearAllLists();
+        initializeAllListsFromDB();
+        refreshTable();
+    }
+
+    private void clearAllLists() {
+
+        songsTableObservableList.clear();
+
+        songsList.clear();
+        artistList.clear();
+        noteList.clear();
+    }
+
+    private void initializeAllListsFromDB() {
+        songsList = songDao.getAllSongs();
+        //artistList = artistDao.getAllArtist();
+        //noteList = noteDao.getAllNotes();
     }
 
     private void listLearnedSongs() {
@@ -224,6 +243,31 @@ public class Controller implements Initializable {
 
     private void listNotLearnedSongs() {
 
+    }
+
+    private void refreshTable() {
+
+        Song song;
+        Artist artist;
+        Note note;
+
+        for ( int i=0 ; i<songsList.size() ; i++) {
+
+            song = songsList.get(i);
+            artist = songsList.get(i).getArtist();
+            note = songsList.get(i).getNote();
+
+            songsTableObservableList.
+                    add(new SongTableRow(song, artist, note));
+        }
+
+//        competitionsTableObservableList.clear();
+//
+//        for(Competition competition : tableCompetitors.getSelectionModel()
+//                .getSelectedItem().getCompetitorObject().getCompetitions()){
+//
+//            competitionsTableObservableList.add(new CompetitionTableRow(competition));
+//        }
     }
 
 }

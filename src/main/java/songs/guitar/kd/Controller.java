@@ -12,6 +12,7 @@ import songs.guitar.kd.dao.SongDao;
 import songs.guitar.kd.dao.impl.ArtistDaoImpl;
 import songs.guitar.kd.dao.impl.NoteDaoImpl;
 import songs.guitar.kd.dao.impl.SongDaoImpl;
+import songs.guitar.kd.gui.TextFieldLimiter;
 import songs.guitar.kd.model.*;
 import songs.guitar.kd.model.db.Artist;
 import songs.guitar.kd.model.db.Note;
@@ -22,8 +23,10 @@ import songs.guitar.kd.util.Util;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import org.controlsfx.control.textfield.TextFields;
 
 /*
 https://www.mkyong.com/java/jaxb-hello-world-example/
@@ -35,6 +38,8 @@ https://examples.javacodegeeks.com/desktop-java/javafx/tableview/javafx-tablevie
 
 public class Controller implements Initializable {
 
+    private TextFieldLimiter textFieldLimiter;
+
     private List<Song> songsList;
     private List<Artist> artistList;
     private List<Note> noteList;
@@ -45,6 +50,8 @@ public class Controller implements Initializable {
 
     // ObservableList powoduje, że tabela automatycznie reaguje na zawartości listy tego typu
     private ObservableList<SongTableRow> songsTableObservableList = FXCollections.observableArrayList();
+
+    private HashSet<String> artistNamesStringHashSet;
 
     @FXML
     TableView<SongTableRow> tableSongs;
@@ -94,9 +101,15 @@ public class Controller implements Initializable {
         createListeners();
 
         setCellFactoryForEachColumn();
+
+        initializeArtistNamesList();
+
+        initializeAutoCompletionArtistTextField();
     }
 
     private void initializeObjects() {
+
+        textFieldLimiter = new TextFieldLimiter();
 
         songDao = new SongDaoImpl();
         artistDao = new ArtistDaoImpl();
@@ -106,6 +119,9 @@ public class Controller implements Initializable {
         artistList = new ArrayList<>();
         noteList = new ArrayList<>();
 
+        artistNamesStringHashSet = new HashSet<>();
+
+        addTextLimiter();
         initializeComboBox();
 
     }
@@ -115,6 +131,11 @@ public class Controller implements Initializable {
         difficultyLevelComboBox.setValue(Util.difficultyLevelStrings[0]);
     }
 
+    private void addTextLimiter() {
+
+        textFieldLimiter.addTextLimiter(artistNameField, 50);
+        textFieldLimiter.addTextLimiter(songTitleField, 80);
+    }
 
     private void setTables() {
 
@@ -179,7 +200,12 @@ public class Controller implements Initializable {
         Artist artist = new Artist();
         Note note = new Note();
 
-        artist.setArtistName(artistNameField.getText());
+        String artistName = artistNameField.getText();
+
+        if ( ifArtistExists(artistName) )
+            artist = artistDao.getArtistByName(artistName);
+        else
+            artist.setArtistName(artistName);
 
         note.setNoteText("PUSTA NOTATKA");
 
@@ -192,12 +218,24 @@ public class Controller implements Initializable {
 
         songDao.saveSong(song);
 
+        clearFields();
         downloadDataFromDBAndRefreshSongTable();
-//        Competitor competitor = new Competitor(competitorNameField.getText());
-//
-//        songsList.add(competitor);
-//
-//        songsTableObservableList.add(new CompetitorTableRow(competitor));
+        initializeArtistNamesList();
+        initializeAutoCompletionArtistTextField();
+    }
+
+    private boolean ifArtistExists(String artistName) {
+
+        if ( !artistNamesStringHashSet.contains(artistName) )
+            return false;
+        else
+            return true;
+    }
+
+    private void clearFields() {
+        artistNameField.clear();
+        songTitleField.clear();
+        difficultyLevelComboBox.setValue(Util.difficultyLevelStrings[0]);
     }
 
     private void addCompetition() {
@@ -218,23 +256,25 @@ public class Controller implements Initializable {
     private void downloadDataFromDBAndRefreshSongTable() {
 
         clearAllLists();
-        initializeAllListsFromDB();
+        getSongsFromDB();
         refreshTable();
     }
 
     private void clearAllLists() {
 
         songsTableObservableList.clear();
-
+        artistNamesStringHashSet.clear();
         songsList.clear();
         artistList.clear();
         noteList.clear();
     }
 
-    private void initializeAllListsFromDB() {
+    private void getSongsFromDB() {
         songsList = songDao.getAllSongs();
-        //artistList = artistDao.getAllArtist();
-        //noteList = noteDao.getAllNotes();
+    }
+
+    private void getArtistsFromDB() {
+        artistList = artistDao.getAllArtist();
     }
 
     private void listLearnedSongs() {
@@ -268,6 +308,19 @@ public class Controller implements Initializable {
 //
 //            competitionsTableObservableList.add(new CompetitionTableRow(competition));
 //        }
+    }
+
+    private void initializeArtistNamesList() {
+
+        getArtistsFromDB();
+
+        for ( Artist artist : artistList )
+            artistNamesStringHashSet.add(artist.getArtistName());
+    }
+
+    private void initializeAutoCompletionArtistTextField() {
+
+        TextFields.bindAutoCompletion(artistNameField, artistNamesStringHashSet);
     }
 
 }

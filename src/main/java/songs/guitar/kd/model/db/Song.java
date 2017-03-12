@@ -34,7 +34,7 @@ public class Song {
 
     //(cascade = CascadeType.ALL)
     //@JoinColumn(name="artistReference", referencedColumnName="id")
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     private Artist artist;
 
     public Artist getArtist() {

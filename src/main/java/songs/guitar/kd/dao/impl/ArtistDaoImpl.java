@@ -40,4 +40,11 @@ public class ArtistDaoImpl extends AbstractDao<Integer, Artist> implements Artis
         criteria.add(Restrictions.eq("id", id));
         return (Artist) criteria.uniqueResult();
     }
+
+    @Override
+    public Artist getArtistByName(String name) {
+        Criteria criteria = createEntityCriteria();
+        criteria.add(Restrictions.eq("artistName", name));
+        return (Artist) criteria.uniqueResult();
+    }
 }

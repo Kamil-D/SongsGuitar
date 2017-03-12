@@ -36,11 +36,15 @@ public abstract class AbstractDao<PK extends Serializable, T> {
     }
 
     protected void deleteEntity(T entity) {
-        getSession().delete(entity);
+        startTransaction();
+        session.delete(entity);
+        endSession();
     }
 
     protected void editEntity(T entity) {
-        getSession().update(entity);
+        startTransaction();
+        session.update(entity);
+        endSession();
     }
 
     protected Criteria createEntityCriteria() {

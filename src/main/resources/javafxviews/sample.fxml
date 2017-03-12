@@ -17,10 +17,10 @@
         <TableView fx:id="tableSongs" prefHeight="581.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
             <columns>
                 <TableColumn fx:id="artistColumn" prefWidth="187.00001525878906" text="Wykonawca" />
-                <TableColumn fx:id="songColumn" minWidth="0.0" prefWidth="240.0" text="Utwór" />
-                <TableColumn fx:id="difficultyLevelColumn" prefWidth="194.0" text="Poziom trudności" />
-                <TableColumn fx:id="learnedLevelColumn" prefWidth="177.0" text="Stopień nauki" />
-                <TableColumn fx:id="notesColumn" prefWidth="200.0" text="Notatki" />
+                <TableColumn fx:id="songColumn" minWidth="0.0" prefWidth="258.0" text="Utwór" />
+                <TableColumn fx:id="difficultyLevelColumn" prefWidth="134.0" text="Poziom trudności" />
+                <TableColumn fx:id="learnedLevelColumn" prefWidth="129.0" text="Stopień nauki" />
+                <TableColumn fx:id="notesColumn" prefWidth="290.0" text="Notatki" />
             </columns>
         </TableView>
     </center>

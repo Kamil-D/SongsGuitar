@@ -8,13 +8,14 @@ import org.hibernate.service.ServiceRegistry;
 public class HibernateUtil {
 	
 	private static final SessionFactory sessionFactory; // Set up once for an app?
+	// The main purpose of a service registry is to hold, manage and provide access to services.
 	private static final ServiceRegistry serviceRegistry;
 
 	static {
 		//sf = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
 
 		Configuration configuration = new Configuration();
-		configuration.configure("hibernate.cfg.xml");
+		configuration.configure("db/hibernate.cfg.xml");
 
 		StandardServiceRegistryBuilder serviceRegistryBuilder = new StandardServiceRegistryBuilder();
 

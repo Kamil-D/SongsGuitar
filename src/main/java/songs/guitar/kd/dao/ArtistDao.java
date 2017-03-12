@@ -20,4 +20,6 @@ public interface ArtistDao {
 
     Artist getArtistById(int id);
 
+    Artist getArtistByName(String name);
+
 }

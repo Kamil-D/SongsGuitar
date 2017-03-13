@@ -1,6 +1,7 @@
 package songs.guitar.kd.dao.impl;
 
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.criterion.Restrictions;
 import songs.guitar.kd.dao.AbstractDao;
 import songs.guitar.kd.dao.ArtistDao;
@@ -30,21 +31,37 @@ public class ArtistDaoImpl extends AbstractDao<Integer, Artist> implements Artis
 
     @Override
     public List<Artist> getAllArtist() {
+        List<Artist> artistList;
+
+        startSessionAndTransaction();
         Criteria criteria = createEntityCriteria();
-        return (List<Artist>) criteria.list();
+        artistList = criteria.list();
+        endTransactionSession();
+        return artistList;
     }
 
     @Override
     public Artist getArtistById(int id) {
+        Artist artist;
+
+        startSessionAndTransaction();
         Criteria criteria = createEntityCriteria();
         criteria.add(Restrictions.eq("id", id));
-        return (Artist) criteria.uniqueResult();
+        artist = (Artist) criteria.uniqueResult();
+        endTransactionSession();
+        return artist;
     }
 
     @Override
     public Artist getArtistByName(String name) {
+        Artist artist;
+
+        startSessionAndTransaction();
         Criteria criteria = createEntityCriteria();
         criteria.add(Restrictions.eq("artistName", name));
-        return (Artist) criteria.uniqueResult();
+        artist = (Artist) criteria.uniqueResult();
+        endTransactionSession();
+        return artist;
     }
+
 }

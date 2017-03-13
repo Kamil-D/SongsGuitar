@@ -141,7 +141,7 @@ public class Controller implements Initializable {
 
         tableSongs.setItems(songsTableObservableList);
 
-        downloadDataFromDBAndRefreshSongTable();
+        downloadAllSongsFromDBAndRefreshSongTable();
 
 //        Song song = new Song();
 //        Artist artist = new Artist();
@@ -168,13 +168,13 @@ public class Controller implements Initializable {
             addSong();
         });
         showLearnedButton.setOnAction((ActionEvent e) -> {
-            listLearnedSongs();
+            downloadLearnedSongsFromDBAndRefreshSongTable();
         });
         showNotLearnedButton.setOnAction((ActionEvent e) -> {
-            listNotLearnedSongs();
+            downloadNotLearnedSongsFromDBAndRefreshSongTable();
         });
         showAllButton.setOnAction((ActionEvent e) -> {
-            downloadDataFromDBAndRefreshSongTable();
+            downloadAllSongsFromDBAndRefreshSongTable();
         });
 
 //        tableCompetitors.getSelectionModel().selectedItemProperty().addListener(
@@ -196,32 +196,62 @@ public class Controller implements Initializable {
 
     private void addSong() {
 
+        if ( ! checkFieldsFilled() ) {
+            showAlertDialog();
+            return;
+        }
+
         Song song = new Song();
         Artist artist = new Artist();
         Note note = new Note();
 
-        String artistName = artistNameField.getText();
 
-        if ( ifArtistExists(artistName) )
-            artist = artistDao.getArtistByName(artistName);
-        else
-            artist.setArtistName(artistName);
+//        if ( ifArtistExists(artistName) )
+//            artist = artistDao.getArtistByName(artistName);
+//        else
+//            artist.setArtistName(artistName);
 
         note.setNoteText("PUSTA NOTATKA");
 
         song.setTitle(songTitleField.getText());
         song.setDifficultyLevel(difficultyLevelComboBox.getSelectionModel().getSelectedItem().toString());
-        song.setLearnedLevel("0/0");
+        song.setLearnedLevel(Util.learnedLevelStrings[0]);
 
-        song.setArtist(artist);
+//        song.setArtist(artist);
         song.setNote(note);
 
-        songDao.saveSong(song);
+        String artistName = artistNameField.getText();
+
+        if ( ifArtistExists(artistName) )
+            songDao.saveSongExistingArtist(song, artistName);
+        else {
+            artist.setArtistName(artistName);
+            song.setArtist(artist);
+            songDao.saveSong(song);
+        }
 
         clearFields();
-        downloadDataFromDBAndRefreshSongTable();
+        downloadAllSongsFromDBAndRefreshSongTable();
         initializeArtistNamesList();
         initializeAutoCompletionArtistTextField();
+    }
+
+    private void showAlertDialog() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Puste pola");
+        alert.setHeaderText(null);
+        alert.setContentText("Uzupełnij wszystkie pola!");
+        alert.showAndWait();
+    }
+
+    private boolean checkFieldsFilled() {
+
+        if ( artistNameField.getText().length() <= 0 )
+            return false;
+        else if ( songTitleField.getText().length() <= 0 )
+            return false;
+        else
+            return true;
     }
 
     private boolean ifArtistExists(String artistName) {
@@ -253,10 +283,24 @@ public class Controller implements Initializable {
 
     }
 
-    private void downloadDataFromDBAndRefreshSongTable() {
+    private void downloadAllSongsFromDBAndRefreshSongTable() {
 
         clearAllLists();
-        getSongsFromDB();
+        getAllSongsFromDB();
+        refreshTable();
+    }
+
+    private void downloadNotLearnedSongsFromDBAndRefreshSongTable() {
+
+        clearAllLists();
+        getNotLearnedSongsFromDB();
+        refreshTable();
+    }
+
+    private void downloadLearnedSongsFromDBAndRefreshSongTable() {
+
+        clearAllLists();
+        getLearnedSongsFromDB();
         refreshTable();
     }
 
@@ -269,7 +313,7 @@ public class Controller implements Initializable {
         noteList.clear();
     }
 
-    private void getSongsFromDB() {
+    private void getAllSongsFromDB() {
         songsList = songDao.getAllSongs();
     }
 
@@ -277,12 +321,14 @@ public class Controller implements Initializable {
         artistList = artistDao.getAllArtist();
     }
 
-    private void listLearnedSongs() {
+    private void getLearnedSongsFromDB() {
 
+        songsList = songDao.getLearnedSongs();
     }
 
-    private void listNotLearnedSongs() {
+    private void getNotLearnedSongsFromDB() {
 
+        songsList = songDao.getNotLearnedSongs();
     }
 
     private void refreshTable() {

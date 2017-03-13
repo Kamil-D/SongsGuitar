@@ -12,7 +12,7 @@ public abstract class AbstractDao<PK extends Serializable, T> {
 
     private final Class<T> persistentClass;
     private SessionFactory sessionFactory;
-    private Session session;
+    protected Session session;
 
     public AbstractDao() {
         this.persistentClass = (Class<T>) ((ParameterizedType)
@@ -30,33 +30,33 @@ public abstract class AbstractDao<PK extends Serializable, T> {
     }
 
     protected void persist(T entity) {
-        startTransaction();
+        startSessionAndTransaction();
         session.persist(entity);
-        endSession();
+        endTransactionSession();
     }
 
     protected void deleteEntity(T entity) {
-        startTransaction();
+        startSessionAndTransaction();
         session.delete(entity);
-        endSession();
+        endTransactionSession();
     }
 
     protected void editEntity(T entity) {
-        startTransaction();
+        startSessionAndTransaction();
         session.update(entity);
-        endSession();
+        endTransactionSession();
     }
 
     protected Criteria createEntityCriteria() {
-        return getSession().createCriteria(persistentClass);
+        return session.createCriteria(persistentClass);
     }
 
-    protected void startTransaction() {
+    protected void startSessionAndTransaction() {
         session = getSession();
         session.beginTransaction();
     }
 
-    protected void endSession() {
+    protected void endTransactionSession() {
         session.getTransaction().commit();
         session.close();
     }

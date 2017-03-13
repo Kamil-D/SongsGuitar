@@ -33,14 +33,25 @@ public class NoteDaoImpl extends AbstractDao<Integer, Note> implements NoteDao {
 
     @Override
     public List<Note> getAllNotes() {
+        List<Note> noteList;
+
+        startSessionAndTransaction();
         Criteria criteria = createEntityCriteria();
-        return (List<Note>) criteria.list();
+        noteList = criteria.list();
+        endTransactionSession();
+        return noteList;
     }
 
     @Override
     public Note getNoteById(int id) {
+        Note note;
+
+        startSessionAndTransaction();
         Criteria criteria = createEntityCriteria();
         criteria.add(Restrictions.eq("id", id));
-        return (Note) criteria.uniqueResult();    }
+        note = (Note) criteria.uniqueResult();
+        endTransactionSession();
+        return note;
+    }
 
 }

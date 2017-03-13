@@ -12,6 +12,8 @@ public interface SongDao {
 
     void saveSong(Song song);
 
+    void saveSongExistingArtist(Song song, String artistName);
+
     void deleteSong(Song song);
 
     void updateSong(Song song);
@@ -20,4 +22,7 @@ public interface SongDao {
 
     List<Song> getAllArtistSongs(int artistId);
 
+    List<Song> getNotLearnedSongs();
+
+    List<Song> getLearnedSongs();
 }

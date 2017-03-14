@@ -15,7 +15,8 @@ import java.util.Set;
 public class Artist {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "artistSequence", sequenceName = "artistSequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "artistSequence")
     @Column
     @Type(type = "int")
     private int id;

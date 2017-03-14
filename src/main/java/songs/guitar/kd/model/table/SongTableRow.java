@@ -1,4 +1,4 @@
-package songs.guitar.kd.model;
+package songs.guitar.kd.model.table;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -11,11 +11,15 @@ import songs.guitar.kd.model.db.Song;
  */
 public class SongTableRow {
 
-    SimpleStringProperty songTitleName;
-    SimpleStringProperty artistName;
-    SimpleStringProperty difficultyLevel;
-    SimpleStringProperty learnedLevel;
-    SimpleStringProperty noteText;
+    private int songId;
+    private int artistId;
+    private int noteId;
+
+    private SimpleStringProperty songTitleName;
+    private SimpleStringProperty artistName;
+    private SimpleStringProperty difficultyLevel;
+    private SimpleStringProperty learnedLevel;
+    private SimpleStringProperty noteText;
 
     private Song song;
     private Artist artist;
@@ -27,6 +31,18 @@ public class SongTableRow {
         this.artist = artist;
         this.note = note;
 
+        setIDs();
+
+        setSimpleProperties();
+    }
+
+    private void setIDs() {
+        this.songId = song.getId();
+        this.artistId = artist.getId();
+        this.noteId = note.getId();
+    }
+
+    private void setSimpleProperties() {
         this.songTitleName = new SimpleStringProperty(song.getTitle());
         this.artistName = new SimpleStringProperty(artist.getArtistName());
         this.difficultyLevel = new SimpleStringProperty(song.getDifficultyLevel());

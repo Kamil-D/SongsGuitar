@@ -12,7 +12,8 @@ import javax.persistence.*;
 public class Note {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "noteSequence", sequenceName = "noteSequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "noteSequence")
     @Column
     @Type(type = "int")
     private int id;

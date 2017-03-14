@@ -13,7 +13,8 @@ import javax.persistence.*;
 public class Song {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "songSequence", sequenceName = "songSequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "songSequence")
     @Column
     @Type(type = "int")
     private int id;
@@ -45,7 +46,7 @@ public class Song {
     }
 
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.PERSIST)
     //@JoinColumn(name = "noteReference", nullable = false)
     private Note note;
 

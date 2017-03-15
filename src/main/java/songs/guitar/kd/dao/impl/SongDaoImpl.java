@@ -6,9 +6,8 @@ import songs.guitar.kd.dao.AbstractDao;
 import songs.guitar.kd.dao.SongDao;
 import songs.guitar.kd.model.db.Artist;
 import songs.guitar.kd.model.db.Song;
-import songs.guitar.kd.util.Util;
+import songs.guitar.kd.util.LearnedLevelEnum;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -75,8 +74,8 @@ public class SongDaoImpl extends AbstractDao<Integer, Song> implements SongDao {
 
         startSessionAndTransaction();
         Criteria criteria = createEntityCriteria();
-        criteria.add(Restrictions.not(Restrictions.ilike("learnedLevel", Util.learnedLevelStrings[9])));
-        criteria.add(Restrictions.not(Restrictions.ilike("learnedLevel", Util.learnedLevelStrings[10])));
+        criteria.add(Restrictions.not(Restrictions.ilike("learnedLevel", LearnedLevelEnum.LEVEL_9.getLevel())));
+        criteria.add(Restrictions.not(Restrictions.ilike("learnedLevel", LearnedLevelEnum.LEVEL_10.getLevel())));
 
         songList = criteria.list();
         endTransactionSession();
@@ -91,8 +90,8 @@ public class SongDaoImpl extends AbstractDao<Integer, Song> implements SongDao {
         Criteria criteria = createEntityCriteria();
 
         criteria.add(Restrictions.disjunction()
-                .add(Restrictions.ilike("learnedLevel", Util.learnedLevelStrings[9]))
-                .add(Restrictions.ilike("learnedLevel", Util.learnedLevelStrings[10]))
+                .add(Restrictions.ilike("learnedLevel", LearnedLevelEnum.LEVEL_9.getLevel()))
+                .add(Restrictions.ilike("learnedLevel", LearnedLevelEnum.LEVEL_10.getLevel()))
         );
 
         songList = criteria.list();

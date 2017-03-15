@@ -18,8 +18,6 @@ public interface ArtistDao {
 
     List<Artist> getAllArtist();
 
-    Artist getArtistById(int id);
-
     Artist getArtistByName(String name);
 
 }

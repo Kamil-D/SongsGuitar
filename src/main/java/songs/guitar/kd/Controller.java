@@ -17,8 +17,6 @@ import songs.guitar.kd.model.db.Artist;
 import songs.guitar.kd.model.db.Note;
 import songs.guitar.kd.model.db.Song;
 import songs.guitar.kd.model.table.SongTableRow;
-import songs.guitar.kd.util.HibernateUtil;
-import songs.guitar.kd.util.Util;
 
 
 import java.net.URL;
@@ -27,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.controlsfx.control.textfield.TextFields;
+import songs.guitar.kd.util.DifficultyLevelEnum;
+import songs.guitar.kd.util.LearnedLevelEnum;
 
 /*
 https://www.mkyong.com/java/jaxb-hello-world-example/
@@ -130,8 +130,11 @@ public class Controller implements Initializable {
     }
 
     private void initializeComboBox() {
-        difficultyLevelComboBox.getItems().addAll(Util.difficultyLevelStrings);
-        difficultyLevelComboBox.setValue(Util.difficultyLevelStrings[0]);
+
+        for ( DifficultyLevelEnum levelEnum : DifficultyLevelEnum.values() )
+            difficultyLevelComboBox.getItems().add(levelEnum.getLevel());
+
+        difficultyLevelComboBox.setValue(DifficultyLevelEnum.LEVEL_1.getLevel());
     }
 
     private void addTextLimiter() {
@@ -218,7 +221,7 @@ public class Controller implements Initializable {
 
         song.setTitle(songTitleField.getText());
         song.setDifficultyLevel(difficultyLevelComboBox.getSelectionModel().getSelectedItem().toString());
-        song.setLearnedLevel(Util.learnedLevelStrings[0]);
+        song.setLearnedLevel(LearnedLevelEnum.LEVEL_0.getLevel());
 
 //        song.setArtist(artist);
         song.setNote(note);
@@ -268,7 +271,7 @@ public class Controller implements Initializable {
     private void clearFields() {
         artistNameField.clear();
         songTitleField.clear();
-        difficultyLevelComboBox.setValue(Util.difficultyLevelStrings[0]);
+        difficultyLevelComboBox.setValue(LearnedLevelEnum.LEVEL_0.getLevel());
     }
 
     private void addCompetition() {

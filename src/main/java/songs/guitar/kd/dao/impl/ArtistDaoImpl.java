@@ -40,17 +40,17 @@ public class ArtistDaoImpl extends AbstractDao<Integer, Artist> implements Artis
         return artistList;
     }
 
-    @Override
-    public Artist getArtistById(int id) {
-        Artist artist;
-
-        startSessionAndTransaction();
-        Criteria criteria = createEntityCriteria();
-        criteria.add(Restrictions.eq("id", id));
-        artist = (Artist) criteria.uniqueResult();
-        endTransactionSession();
-        return artist;
-    }
+//    @Override
+//    public Artist getArtistById(int id) {
+//        Artist artist;
+//
+//        startSessionAndTransaction();
+//        Criteria criteria = createEntityCriteria();
+//        criteria.add(Restrictions.eq("id", id));
+//        artist = (Artist) criteria.uniqueResult();
+//        endTransactionSession();
+//        return artist;
+//    }
 
     @Override
     public Artist getArtistByName(String name) {

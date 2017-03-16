@@ -33,6 +33,7 @@ public class Song {
 
 
 
+
     //@JoinColumn(name="artistReference", referencedColumnName="id")
     @ManyToOne(cascade = CascadeType.ALL)
     private Artist artist;
@@ -43,6 +44,18 @@ public class Song {
 
     public void setArtist(Artist artist) {
         this.artist = artist;
+    }
+
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    private SongSection songSection;
+
+    public SongSection getSongSection() {
+        return songSection;
+    }
+
+    public void setSongSection(SongSection songSection) {
+        this.songSection = songSection;
     }
 
 

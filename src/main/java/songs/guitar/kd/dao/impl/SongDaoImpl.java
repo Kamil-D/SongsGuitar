@@ -6,7 +6,7 @@ import songs.guitar.kd.dao.AbstractDao;
 import songs.guitar.kd.dao.SongDao;
 import songs.guitar.kd.model.db.Artist;
 import songs.guitar.kd.model.db.Song;
-import songs.guitar.kd.util.LearnedLevelEnum;
+import songs.guitar.kd.util.enumclass.LearnedLevelEnum;
 
 import java.util.List;
 

@@ -22,12 +22,13 @@
 
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">true</property>
-		<property name="hbm2ddl.auto">update</property>
+		<property name="hbm2ddl.auto">create</property>
  
         <!-- Mention here all the model classes along with their package name -->
         <mapping class="songs.guitar.kd.model.db.Artist"/>
         <mapping class="songs.guitar.kd.model.db.Note"/>
         <mapping class="songs.guitar.kd.model.db.Song"/>
+        <mapping class="songs.guitar.kd.model.db.SongSection"/>
 
     </session-factory>
 

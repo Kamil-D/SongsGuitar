@@ -25,21 +25,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.controlsfx.control.textfield.TextFields;
-import songs.guitar.kd.util.DifficultyLevelEnum;
-import songs.guitar.kd.util.LearnedLevelEnum;
+import songs.guitar.kd.util.enumclass.DifficultyLevelEnum;
+import songs.guitar.kd.util.enumclass.LearnedLevelEnum;
 
-/*
-https://www.mkyong.com/java/jaxb-hello-world-example/
-http://code.makery.ch/library/javafx-8-tutorial/part2/
-http://docs.oracle.com/javafx/2/ui_controls/table-view.htm
-http://www.java2s.com/Tutorials/Java/JavaFX/0650__JavaFX_TableView.htm
-https://examples.javacodegeeks.com/desktop-java/javafx/tableview/javafx-tableview-example/
-
-TODO:
-piosenka rozbita na etapy + stopień nauki całości piosenki i osobno solo
-wyświeltane gdzieś obok albo w nowym okienku
+/**
+ * https://www.mkyong.com/java/jaxb-hello-world-example/
+ * http://code.makery.ch/library/javafx-8-tutorial/part2/
+ * http://docs.oracle.com/javafx/2/ui_controls/table-view.htm
+ * http://www.java2s.com/Tutorials/Java/JavaFX/0650__JavaFX_TableView.htm
+ * https://examples.javacodegeeks.com/desktop-java/javafx/tableview/javafx-tableview-example/
+ *
+ * TODO:
+ * piosenka rozbita na etapy + stopień nauki całości piosenki i osobno solo
+ * wyświeltane gdzieś obok albo w nowym okienku
  */
-
 public class Controller implements Initializable {
 
     private TextFieldLimiter textFieldLimiter;

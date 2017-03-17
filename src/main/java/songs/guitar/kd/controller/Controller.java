@@ -1,4 +1,4 @@
-package songs.guitar.kd;
+package songs.guitar.kd.controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,21 +9,23 @@ import javafx.scene.control.*;
 import songs.guitar.kd.dao.ArtistDao;
 import songs.guitar.kd.dao.NoteDao;
 import songs.guitar.kd.dao.SongDao;
+import songs.guitar.kd.dao.SongSectionDao;
 import songs.guitar.kd.dao.impl.ArtistDaoImpl;
 import songs.guitar.kd.dao.impl.NoteDaoImpl;
 import songs.guitar.kd.dao.impl.SongDaoImpl;
+import songs.guitar.kd.dao.impl.SongSectionDaoImpl;
 import songs.guitar.kd.gui.TextFieldLimiter;
 import songs.guitar.kd.model.db.Artist;
 import songs.guitar.kd.model.db.Note;
 import songs.guitar.kd.model.db.Song;
+import songs.guitar.kd.model.db.SongSection;
+import songs.guitar.kd.model.table.SectionTableRow;
 import songs.guitar.kd.model.table.SongTableRow;
 
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+
 import org.controlsfx.control.textfield.TextFields;
 import songs.guitar.kd.util.enumclass.DifficultyLevelEnum;
 import songs.guitar.kd.util.enumclass.LearnedLevelEnum;
@@ -46,18 +48,24 @@ public class Controller implements Initializable {
     private List<Song> songsList;
     private List<Artist> artistList;
     private List<Note> noteList;
+    private List<SongSection> sectionList;
 
     private SongDao songDao;
     private ArtistDao artistDao;
     private NoteDao noteDao;
+    private SongSectionDao sectionDao;
 
     // ObservableList powoduje, że tabela automatycznie reaguje na zawartości listy tego typu
     private ObservableList<SongTableRow> songsTableObservableList = FXCollections.observableArrayList();
+    private ObservableList<SectionTableRow> sectionsTableObservableList = FXCollections.observableArrayList();
 
     private HashSet<String> artistNamesStringHashSet;
 
     @FXML
     TableView<SongTableRow> tableSongs;
+
+    @FXML
+    TableView<SectionTableRow> tableSections;
 
     @FXML
     TableColumn<SongTableRow, String> artistColumn;
@@ -73,6 +81,15 @@ public class Controller implements Initializable {
 
     @FXML
     TableColumn<SongTableRow, String> notesColumn;
+
+    @FXML
+    TableColumn<SectionTableRow, String> typeSectionColumn;
+
+    @FXML
+    TableColumn<SectionTableRow, String> titleSectionColumn;
+
+    @FXML
+    TableColumn<SectionTableRow, String> learnedLevelSectionColumn;
 
     @FXML
     TextField artistNameField, songTitleField;
@@ -116,6 +133,7 @@ public class Controller implements Initializable {
         songDao = new SongDaoImpl();
         artistDao = new ArtistDaoImpl();
         noteDao = new NoteDaoImpl();
+        sectionDao = new SongSectionDaoImpl();
 
         songsList = new ArrayList<>();
         artistList = new ArrayList<>();
@@ -145,24 +163,9 @@ public class Controller implements Initializable {
     private void setTables() {
 
         tableSongs.setItems(songsTableObservableList);
+        tableSections.setItems(sectionsTableObservableList);
 
         downloadAllSongsFromDBAndRefreshSongTable();
-
-//        Song song = new Song();
-//        Artist artist = new Artist();
-//        Note note = new Note();
-
-//        artist.setArtistName("Metallica");
-//        song.setTitle("Fade To Black");
-//        song.setDifficultyLevel("6/10");
-//        song.setLearnedLevel("9/10");
-//        note.setNoteText("Ostatnie solo do szlifowania");
-//
-//        songsTableObservableList.add(new SongTableRow(song, artist, note));
-
-//        for (Competitor competitor : songsList) {
-//            songsTableObservableList.add(new SongTableRow(competitor));
-//        }
 
     }
 
@@ -182,12 +185,12 @@ public class Controller implements Initializable {
             downloadAllSongsFromDBAndRefreshSongTable();
         });
 
-//        tableCompetitors.getSelectionModel().selectedItemProperty().addListener(
-//                (observable, oldValue, newValue) -> {
-//
-//                    refreshTable();
-//
-//                });
+        tableSongs.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+
+                    refreshSectionTable();
+
+                });
     }
 
     private void setCellFactoryForEachColumn() {
@@ -197,6 +200,9 @@ public class Controller implements Initializable {
         learnedLevelColumn.setCellValueFactory(cellData -> cellData.getValue().learnedLevelProperty());
         notesColumn.setCellValueFactory(cellData -> cellData.getValue().noteProperty());
 
+        typeSectionColumn.setCellValueFactory(cellData -> cellData.getValue().sectionTypeProperty());
+        learnedLevelSectionColumn.setCellValueFactory(cellData -> cellData.getValue().sectionLearnedLevelProperty());
+        titleSectionColumn.setCellValueFactory(cellData -> cellData.getValue().sectionTitleProperty());
     }
 
     private void addSong() {
@@ -209,12 +215,6 @@ public class Controller implements Initializable {
         Song song = new Song();
         Artist artist = new Artist();
         Note note = new Note();
-
-
-//        if ( ifArtistExists(artistName) )
-//            artist = artistDao.getArtistByName(artistName);
-//        else
-//            artist.setArtistName(artistName);
 
         note.setNoteText("PUSTA NOTATKA");
 
@@ -270,7 +270,7 @@ public class Controller implements Initializable {
     private void clearFields() {
         artistNameField.clear();
         songTitleField.clear();
-        difficultyLevelComboBox.setValue(LearnedLevelEnum.LEVEL_0.getLevel());
+        difficultyLevelComboBox.setValue(DifficultyLevelEnum.LEVEL_1.getLevel());
     }
 
     private void addCompetition() {
@@ -284,7 +284,7 @@ public class Controller implements Initializable {
 //        tableCompetitors.getSelectionModel()
 //                .getSelectedItem().getCompetitorObject().addCompetition(competition);
 //
-//        refreshTable();
+//        refreshSongTable();
 
     }
 
@@ -292,21 +292,21 @@ public class Controller implements Initializable {
 
         clearAllLists();
         getAllSongsFromDB();
-        refreshTable();
+        refreshSongTable();
     }
 
     private void downloadNotLearnedSongsFromDBAndRefreshSongTable() {
 
         clearAllLists();
         getNotLearnedSongsFromDB();
-        refreshTable();
+        refreshSongTable();
     }
 
     private void downloadLearnedSongsFromDBAndRefreshSongTable() {
 
         clearAllLists();
         getLearnedSongsFromDB();
-        refreshTable();
+        refreshSongTable();
     }
 
     private void clearAllLists() {
@@ -336,7 +336,12 @@ public class Controller implements Initializable {
         songsList = songDao.getNotLearnedSongs();
     }
 
-    private void refreshTable() {
+    private void getSectionsFromDB(int artistId) {
+
+        sectionList = sectionDao.getAllSectionsBySong(artistId);
+    }
+
+    private void refreshSongTable() {
 
         Song song;
         Artist artist;
@@ -352,12 +357,36 @@ public class Controller implements Initializable {
                     add(new SongTableRow(song, artist, note));
         }
 
-//        competitionsTableObservableList.clear();
+    }
+
+    private void refreshSectionTable() {
+
+//        SongSection songSection;
 //
-//        for(Competition competition : tableCompetitors.getSelectionModel()
-//                .getSelectedItem().getCompetitorObject().getCompetitions()){
+//        for ( int i=0 ; i<sectionList.size() ; i++) {
 //
-//            competitionsTableObservableList.add(new CompetitionTableRow(competition));
+//            songSection = sectionList.get(i);
+//
+//            sectionsTableObservableList.
+//                    add(new SectionTableRow(songSection));
+//        }
+
+        int songId = tableSongs.getSelectionModel()
+                .getSelectedItem().getSong().getId();
+
+        getSectionsFromDB(songId);
+
+        sectionsTableObservableList.clear();
+
+        for(SongSection songSection : sectionList ){
+
+            sectionsTableObservableList.add(new SectionTableRow(songSection));
+        }
+
+//        for(SongSection songSection : tableSongs.getSelectionModel()
+//                .getSelectedItem().getSong().getSongSectionHashSet()){
+//
+//            sectionsTableObservableList.add(new SectionTableRow(songSection));
 //        }
     }
 

@@ -4,6 +4,8 @@ package songs.guitar.kd.model.db;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Kamil on 2017-03-09.
@@ -47,16 +49,17 @@ public class Song {
     }
 
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    private SongSection songSection;
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = SongSection.class, mappedBy = "song")
+    private Set<SongSection> songSectionHashSet = new HashSet<SongSection>(0);
 
-    public SongSection getSongSection() {
-        return songSection;
+    public Set<SongSection> getSongSectionHashSet() {
+        return songSectionHashSet;
     }
 
-    public void setSongSection(SongSection songSection) {
-        this.songSection = songSection;
+    public void setSongSectionHashSet(Set<SongSection> songSectionHashSet) {
+        this.songSectionHashSet = songSectionHashSet;
     }
+
 
 
     @OneToOne(orphanRemoval = true, cascade = CascadeType.PERSIST)

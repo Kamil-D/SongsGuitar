@@ -5,15 +5,12 @@ import javafx.beans.property.SimpleStringProperty;
 import songs.guitar.kd.model.db.Artist;
 import songs.guitar.kd.model.db.Note;
 import songs.guitar.kd.model.db.Song;
+import songs.guitar.kd.model.db.SongSection;
 
 /**
  * Created by Kamil on 2017-03-09.
  */
 public class SongTableRow {
-
-    private int songId;
-    private int artistId;
-    private int noteId;
 
     private SimpleStringProperty songTitleName;
     private SimpleStringProperty artistName;
@@ -31,15 +28,7 @@ public class SongTableRow {
         this.artist = artist;
         this.note = note;
 
-        setIDs();
-
         setSimpleProperties();
-    }
-
-    private void setIDs() {
-        this.songId = song.getId();
-        this.artistId = artist.getId();
-        this.noteId = note.getId();
     }
 
     private void setSimpleProperties() {
@@ -93,4 +82,7 @@ public class SongTableRow {
     public void setNote(Note note) {
         this.note = note;
     }
+
+
+
 }

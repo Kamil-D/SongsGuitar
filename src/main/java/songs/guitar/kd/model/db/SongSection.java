@@ -35,15 +35,16 @@ public class SongSection {
 
 
 
-    @OneToMany(targetEntity = Song.class, mappedBy = "songSection")
-    private Set<Song> songHashSet = new HashSet<Song>(0);
 
-    public Set<Song> getSongHashSet() {
-        return songHashSet;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Song song;
+
+    public Song getSong() {
+        return song;
     }
 
-    public void setSongHashSet(Set<Song> songHashSet) {
-        this.songHashSet = songHashSet;
+    public void setSong(Song song) {
+        this.song = song;
     }
 
 

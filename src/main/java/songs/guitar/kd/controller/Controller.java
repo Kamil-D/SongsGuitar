@@ -27,8 +27,8 @@ import java.net.URL;
 import java.util.*;
 
 import org.controlsfx.control.textfield.TextFields;
-import songs.guitar.kd.util.enumclass.DifficultyLevelEnum;
-import songs.guitar.kd.util.enumclass.LearnedLevelEnum;
+import songs.guitar.kd.util.enums.DifficultyLevelEnum;
+import songs.guitar.kd.util.enums.LearnedLevelEnum;
 
 /**
  * https://www.mkyong.com/java/jaxb-hello-world-example/

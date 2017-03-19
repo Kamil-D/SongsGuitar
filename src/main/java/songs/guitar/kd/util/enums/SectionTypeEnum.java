@@ -1,4 +1,4 @@
-package songs.guitar.kd.util.enumclass;
+package songs.guitar.kd.util.enums;
 
 /**
  * Created by Kamil on 2017-03-15.
